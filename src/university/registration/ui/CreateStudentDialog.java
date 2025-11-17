@@ -3,9 +3,12 @@ package university.registration.ui;
 import university.registration.model.Student;
 import university.registration.store.Memory;
 import university.registration.ui.components.CardPanel;
+import university.registration.ui.components.HeroBackgroundPanel;
 import university.registration.ui.components.NeutralButton;
+import university.registration.ui.components.PrimaryButton;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.regex.Pattern;
 
@@ -17,37 +20,52 @@ public class CreateStudentDialog extends JDialog {
 
     public CreateStudentDialog(JFrame owner){
         super(owner,"Tạo tài khoản sinh viên",true);
-        setSize(760,560); setLocationRelativeTo(owner); setLayout(new BorderLayout());
+        setSize(1100,720); setLocationRelativeTo(owner);
+        setContentPane(new HeroBackgroundPanel());
+        setLayout(new BorderLayout());
 
         for (String p : Memory.programs) cbProgram.addItem(p);
 
-        CardPanel card=new CardPanel(); card.setLayout(new GridBagLayout());
-        GridBagConstraints g=new GridBagConstraints(); g.insets=new Insets(8,12,8,12); g.fill=GridBagConstraints.HORIZONTAL;
+        CardPanel card=new CardPanel();
+        card.setLayout(new GridBagLayout());
+        card.setBorder(new EmptyBorder(32, 48, 32, 48));
+        GridBagConstraints g=new GridBagConstraints(); g.insets=new Insets(10,16,10,16); g.fill=GridBagConstraints.HORIZONTAL;
 
-        JLabel title=new JLabel("Tạo tài khoản sinh viên"); title.setFont(new Font("Segoe UI",Font.BOLD,24));
+        JLabel title=new JLabel("Đăng ký tài khoản sinh viên");
+        title.setFont(new Font("Segoe UI",Font.BOLD,30));
+        title.setForeground(new Color(16, 82, 138));
         g.gridx=0; g.gridy=0; g.gridwidth=2; card.add(title,g);
 
-        addRow(card,g,1,"Mã số sinh viên:", tfId);
-        addRow(card,g,2,"Họ tên:", tfName);
-        addRow(card,g,3,"Ngày sinh (YYYY-MM-DD):", tfDob);
-        addRow(card,g,4,"Địa chỉ:", tfAddr);
-        addRow(card,g,5,"Email SV:", tfEmail);
+        JLabel subtitle = new JLabel("Nhập thông tin cá nhân bên dưới. Tài khoản sẽ được kích hoạt ngay sau khi tạo.");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        subtitle.setForeground(new Color(90, 90, 90));
+        g.gridy=1;
+        card.add(subtitle,g);
+
+        addRow(card,g,2,"Mã số sinh viên", tfId);
+        addRow(card,g,3,"Họ tên đầy đủ", tfName);
+        addRow(card,g,4,"Ngày sinh (YYYY-MM-DD)", tfDob);
+        addRow(card,g,5,"Địa chỉ liên hệ", tfAddr);
+        addRow(card,g,6,"Email sinh viên", tfEmail);
 
         JLabel lbProg = new JLabel("Chương trình học:");
         lbProg.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         cbProgram.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         cbProgram.setPreferredSize(new Dimension(420, 36));
-        g.gridwidth=1; g.gridx=0; g.gridy=6; g.anchor=GridBagConstraints.EAST; card.add(lbProg,g);
-        g.gridx=1; g.gridy=6; g.anchor=GridBagConstraints.WEST; card.add(cbProgram,g);
+        g.gridwidth=1; g.gridx=0; g.gridy=7; g.anchor=GridBagConstraints.EAST; card.add(lbProg,g);
+        g.gridx=1; g.gridy=7; g.anchor=GridBagConstraints.WEST; card.add(cbProgram,g);
 
-        addRow(card,g,7,"Mật khẩu:", pf1);
-        addRow(card,g,8,"Xác nhận mật khẩu:", pf2);
+        addRow(card,g,8,"Mật khẩu đăng nhập", pf1);
+        addRow(card,g,9,"Xác nhận mật khẩu", pf2);
 
         JPanel actions=new JPanel(new FlowLayout(FlowLayout.RIGHT,14,0));
-        JButton btnCancel=new NeutralButton("Hủy");
-        JButton btnCreate=new NeutralButton("Tạo tài khoản");
+        actions.setOpaque(false);
+        JButton btnCancel=new NeutralButton("Đóng");
+        btnCancel.setPreferredSize(new Dimension(220, 54));
+        JButton btnCreate=new PrimaryButton("Tạo tài khoản");
+        btnCreate.setPreferredSize(new Dimension(220, 54));
         actions.add(btnCancel); actions.add(btnCreate);
-        g.gridx=0; g.gridy=9; g.gridwidth=2; card.add(actions,g);
+        g.gridx=0; g.gridy=10; g.gridwidth=2; card.add(actions,g);
 
         add(card,BorderLayout.CENTER);
 

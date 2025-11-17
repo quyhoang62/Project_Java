@@ -1,11 +1,13 @@
 package university.registration.ui;
 
 import university.registration.model.Course;
-import university.registration.model.Offering;
 import university.registration.model.RegItem;
 import university.registration.model.Student;
 import university.registration.store.Memory;
+import university.registration.ui.components.CardPanel;
+import university.registration.ui.components.HeroBackgroundPanel;
 import university.registration.ui.components.NeutralButton;
+import university.registration.ui.components.PrimaryButton;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,7 +15,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.List;
 
 public class StudentRegistrationFrame extends JFrame {
     final Student student;
@@ -32,19 +33,57 @@ public class StudentRegistrationFrame extends JFrame {
         setTitle("Sinh viên – Đăng ký học phần | "+s.fullName+" ("+s.studentId+")");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setLayout(new BorderLayout());
+		setContentPane(new HeroBackgroundPanel());
+		setLayout(new BorderLayout());
 
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(250, 250, 250));
-        headerPanel.setBorder(new EmptyBorder(16, 0, 6, 0));
-        JLabel headerTitle = new JLabel("ĐĂNG KÝ HỌC PHẦN", SwingConstants.CENTER);
-        headerTitle.setFont(new Font("Segoe UI", Font.BOLD, 34));
-        headerTitle.setForeground(new Color(140, 0, 0));
-        headerPanel.add(headerTitle, BorderLayout.CENTER);
-        add(headerPanel, BorderLayout.NORTH);
+        JPanel overlay = new JPanel(new BorderLayout());
+        overlay.setOpaque(false);
+        overlay.setBorder(new EmptyBorder(24, 32, 32, 32));
+        add(overlay, BorderLayout.CENTER);
 
-        JPanel form = new JPanel(new GridBagLayout());
-        form.setBorder(new EmptyBorder(12, 22, 8, 22));
+        CardPanel mainCard = new CardPanel();
+        mainCard.setLayout(new BorderLayout(0, 24));
+        mainCard.setBorder(new EmptyBorder(24, 32, 32, 32));
+        overlay.add(mainCard, BorderLayout.CENTER);
+        overlay.add(UI.footer(), BorderLayout.SOUTH);
+
+        JPanel headerRow = new JPanel(new BorderLayout());
+        headerRow.setOpaque(false);
+
+        JPanel headerLeft = new JPanel();
+        headerLeft.setOpaque(false);
+        headerLeft.setLayout(new BoxLayout(headerLeft, BoxLayout.Y_AXIS));
+
+        JLabel headerTitle = new JLabel("TRUNG TÂM ĐÀO TẠO – AGU");
+        headerTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        headerTitle.setForeground(new Color(16, 82, 138));
+        JLabel headerSub = new JLabel("Đăng ký học phần trực tuyến cho sinh viên");
+        headerSub.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        headerSub.setForeground(new Color(90, 90, 90));
+        headerLeft.add(headerTitle);
+        headerLeft.add(Box.createVerticalStrut(4));
+        headerLeft.add(headerSub);
+
+        JPanel headerRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        headerRight.setOpaque(false);
+        JLabel lbUser = new JLabel(student.fullName + " • " + student.studentId);
+        lbUser.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        JButton btnLogoutTop = new PrimaryButton("Đăng xuất");
+        btnLogoutTop.setPreferredSize(new Dimension(200, 52));
+        btnLogoutTop.addActionListener(e -> { dispose(); new LoginFrame(); });
+        headerRight.add(lbUser);
+        headerRight.add(btnLogoutTop);
+
+        headerRow.add(headerLeft, BorderLayout.WEST);
+        headerRow.add(headerRight, BorderLayout.EAST);
+        mainCard.add(headerRow, BorderLayout.NORTH);
+
+        JPanel body = new JPanel(new BorderLayout(0, 18));
+        body.setOpaque(false);
+        mainCard.add(body, BorderLayout.CENTER);
+
+		JPanel form = new JPanel(new GridBagLayout());
+		form.setOpaque(false);
         GridBagConstraints g = new GridBagConstraints();
         g.insets = new Insets(8, 10, 8, 10);
         g.anchor = GridBagConstraints.WEST;
@@ -66,7 +105,7 @@ public class StudentRegistrationFrame extends JFrame {
         JLabel lbProgram = new JLabel("Học chương trình: " + student.program);
         lbProgram.setFont(fTopText);
         lbProgram.setForeground(new Color(80,80,80));
-        addCell(form, g, 2, row, lbProgram, 3);
+        addCell(form, g, 2, row, lbProgram, 2);
 
         row++;
         JLabel lbCourse = new JLabel("Mã HP đăng ký:");
@@ -93,14 +132,19 @@ public class StudentRegistrationFrame extends JFrame {
         btnAdd = new NeutralButton("Đăng ký");
         addCell(form, g, 3, row, btnAdd);
 
-        lbTermLock.setForeground(new Color(180,0,0));
-        add(form, BorderLayout.PAGE_START);
+        row++;
+        lbTermLock.setForeground(new Color(200, 0, 0));
+        lbTermLock.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        addCell(form, g, 0, row, lbTermLock, 4);
 
-        JPanel center = new JPanel(new BorderLayout());
-        center.setBorder(new EmptyBorder(6, 20, 10, 20));
+        body.add(form, BorderLayout.NORTH);
+
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.setOpaque(false);
+
         lbTableTitle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         lbTableTitle.setBorder(new EmptyBorder(8, 6, 8, 6));
-        center.add(lbTableTitle, BorderLayout.NORTH);
+        tablePanel.add(lbTableTitle, BorderLayout.NORTH);
 
         model=new DefaultTableModel(new Object[]{"Mã HP","Tên học phần","Ngày đăng ký","TT đăng ký","Số TC","Chọn"},0){
             @Override public boolean isCellEditable(int r,int c){ return c==5; }
@@ -111,19 +155,21 @@ public class StudentRegistrationFrame extends JFrame {
         table.setRowHeight(30);
         table.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,16));
         JScrollPane sp=new JScrollPane(table);
-        center.add(sp, BorderLayout.CENTER);
+        tablePanel.add(sp, BorderLayout.CENTER);
 
         lbEmpty.setHorizontalAlignment(SwingConstants.CENTER);
         lbEmpty.setForeground(new Color(120,120,120));
         lbEmpty.setBorder(new EmptyBorder(8,0,8,0));
-        center.add(lbEmpty, BorderLayout.SOUTH);
+        tablePanel.add(lbEmpty, BorderLayout.SOUTH);
 
-        add(center, BorderLayout.CENTER);
+        body.add(tablePanel, BorderLayout.CENTER);
 
         JPanel bottom = new JPanel(new BorderLayout());
-        bottom.setBorder(new EmptyBorder(6, 20, 16, 20));
+        bottom.setOpaque(false);
+        bottom.setBorder(new EmptyBorder(6, 0, 0, 0));
 
         JPanel rightRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        rightRow.setOpaque(false);
         JLabel lbSumText = new JLabel("Tổng số TC đăng ký = ");
         lbSumText.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         JLabel lbTotal = this.lbTotal;
@@ -132,12 +178,13 @@ public class StudentRegistrationFrame extends JFrame {
         rightRow.add(lbSumText); rightRow.add(lbTotal); rightRow.add(Box.createHorizontalStrut(10)); rightRow.add(btnDelete);
 
         JPanel submitRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        btnSubmit = new NeutralButton("Gửi đăng ký");
+        submitRow.setOpaque(false);
+        btnSubmit = new PrimaryButton("Gửi đăng ký");
         submitRow.add(btnSubmit);
 
         bottom.add(rightRow, BorderLayout.NORTH);
         bottom.add(submitRow, BorderLayout.SOUTH);
-        add(bottom, BorderLayout.SOUTH);
+        body.add(bottom, BorderLayout.SOUTH);
 
         cbTerm.addActionListener(e -> refreshAll());
         btnAdd.addActionListener(e -> addSelected());

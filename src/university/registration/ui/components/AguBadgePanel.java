@@ -48,3 +48,4 @@ public class AguBadgePanel extends JPanel {
 	}
 }
 
+
